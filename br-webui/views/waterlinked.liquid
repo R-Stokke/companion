@@ -80,6 +80,10 @@
 			// Set Radio toggles to backend state
 			$("#orientation1").prop('checked', data.orientation == 1);
 			$("#orientation2").prop('checked', data.orientation == 2);
+			$("#rotation1").prop('checked', data.rotation == 1);
+			$("#rotation2").prop('checked', data.rotation == 2);
+			$("#rotation3").prop('checked', data.rotation == 3);
+			$("#rotation4").prop('checked', data.rotation == 4);
 			// $("lat").value = data.origin[0]
 			// $("long").value = data.origin[1]
 			// marker.setLatLng(L.latLng(data.origin))
@@ -123,6 +127,13 @@
 		request.open('GET', '/api/waterlinked-dvl/orientation/' + orientation, true);
 		request.send();
 	}
+	
+	/* Sets dvl rotation */
+	function setDvlRotation(rotation) {
+		const request = new XMLHttpRequest();
+		request.timeout = 800;
+		request.open('GET', '/api/waterlinked-dvl/rotation/' + rotation, true);
+		request.send();
 
 	/* Sets DVL hostname (usually waterlinked-dvl.local) */
 	function setDvlHostname() {
@@ -219,6 +230,39 @@
 						</label>
 					</div>
 				</div>
+				
+				<div class="col-md-4">
+					<h4>Rotation</h4>
+					<div class="form-check">
+						<input class="form-check-input" type="radio" name="exampleRadios" id="rotation1"
+							onclick="setDvlRotation(1);">
+						<label class="form-check-label" for="rotation1">
+							0 degrees
+						</label>
+					</div>
+					<div class="form-check">
+						<input class="form-check-input" type="radio" name="exampleRadios" id="rotation2"
+							onclick="setDvlRotation(2);">
+						<label class="form-check-label" for="rotation2">
+							90 degrees
+						</label>
+					</div>
+					<div class="form-check">
+						<input class="form-check-input" type="radio" name="exampleRadios" id="rotation3"
+							onclick="setDvlRotation(3);">
+						<label class="form-check-label" for="rotation3">
+							180 degrees
+						</label>
+					</div>
+					<div class="form-check">
+						<input class="form-check-input" type="radio" name="exampleRadios" id="rotation4"
+							onclick="setDvlRotation(4);">
+						<label class="form-check-label" for="rotation4">
+							270 degrees
+						</label>
+					</div>
+				</div>
+				
 				<div class="col-md-4">
 					<h4>Use as rangefinder 
 					</h4>
