@@ -177,7 +177,7 @@ class DvlDriver (threading.Thread):
         Sets the EKF origin to lat, lon
         """
         self.mav.set_gps_origin(lat, lon)
-        self.origin = [lat, lon]orientation
+        self.origin = [lat, lon]
         self.save_settings()
 
     def set_enabled(self, enable: bool) -> bool:
