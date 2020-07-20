@@ -14,6 +14,10 @@ import os
 HOSTNAME = "192.168.2.11"
 DVL_DOWN = 1
 DVL_FORWARD = 2
+DVL_0_DEG = 1
+DVL_90_DEG = 2
+DVL_180_DEG = 3
+DVL_270_DEG = 4
 
 
 class DvlDriver (threading.Thread):
