@@ -28,6 +28,7 @@ class DvlDriver (threading.Thread):
     port = 0
     last_attitude = (0, 0, 0)  # used for calculating the attitude delta
     current_orientation = DVL_DOWN
+    current_rotation = DVL_0_DEG
     enabled = True
     rangefinder = False
     hostname = HOSTNAME
@@ -36,9 +37,10 @@ class DvlDriver (threading.Thread):
     settings_path = os.path.join(os.path.expanduser(
         "~"), ".config", "dvl", "settings.json")
 
-    def __init__(self, orientation=DVL_DOWN):
+    def __init__(self, orientation=DVL_DOWN, rotation=DVL_0_DEG):
         threading.Thread.__init__(self)
         self.current_orientation = orientation
+        self.current_rotation = rotation
 
     def load_settings(self):
         """
@@ -49,6 +51,7 @@ class DvlDriver (threading.Thread):
                 data = json.load(settings)
                 self.enabled = data["enabled"]
                 self.current_orientation = data["orientation"]
+                self.current_rotation = data["rotation"]
                 self.hostname = data["hostname"]
                 self.origin = data["origin"]
                 self.rangefinder = data["rangefinder"]
@@ -78,6 +81,7 @@ class DvlDriver (threading.Thread):
             settings.write(json.dumps({
                 "enabled": self.enabled,
                 "orientation": self.current_orientation,
+                "rotation": self.current_rotation,
                 "hostname": self.hostname,
                 "origin": self.origin,
                 "rangefinder": self.rangefinder
@@ -91,6 +95,7 @@ class DvlDriver (threading.Thread):
             "status": self.status,
             "enabled": self.enabled,
             "orientation": self.current_orientation,
+            "rotation": self.current_rotation,
             "hostname": self.hostname,
             "origin": self.origin,
             "rangefinder": self.rangefinder
@@ -156,13 +161,23 @@ class DvlDriver (threading.Thread):
             self.save_settings()
             return True
         return False
+    
+    def set_rotation(self, rotation: int) -> bool:
+        """
+        Sets the DVL rotation, 0, 90, 180 or 270 degrees, measured clockwise.
+        """
+        if orientation in [DVL_0_DEG, DVL_90_DEG, DVL_180_DEG, DVL_270_DEG]:
+            self.current_rotation = rotation
+            self.save_settings()
+            return True
+        return False
 
     def set_gps_origin(self, lat, lon):
         """
         Sets the EKF origin to lat, lon
         """
         self.mav.set_gps_origin(lat, lon)
-        self.origin = [lat, lon]
+        self.origin = [lat, lon]orientation
         self.save_settings()
 
     def set_enabled(self, enable: bool) -> bool:
@@ -299,15 +314,49 @@ class DvlDriver (threading.Thread):
                 continue
 
             if self.current_orientation == DVL_DOWN:
-                self.mav.send_vision([dx, dy, dz],
+                if self.current_rotation == DVL_DEG_0:
+                    self.mav.send_vision([dx, dy, dz],
                                      angles,
                                      dt=data["time"]*1e3,
                                      confidence=confidence)
+                elif self.current_rotation == DVL_DEG_90:
+                    self.mav.send_vision([-dy, dx, dz],
+                                     angles,
+                                     dt=data["time"]*1e3,
+                                     confidence=confidence)
+                elif self.current_rotation == DVL_DEG_180:
+                    self.mav.send_vision([-dx, -dy, dz],
+                                     angles,
+                                     dt=data["time"]*1e3,
+                                     confidence=confidence)
+                elif self.current_rotation == DVL_DEG_270:
+                    self.mav.send_vision([dy, -dx, dz],
+                                     angles,
+                                     dt=data["time"]*1e3,
+                                     confidence=confidence)
+              
             elif self.current_orientation == DVL_FORWARD:
-                self.mav.send_vision([dz, dy, -dx],
+                if self.current_rotation == DVL_DEG_0:
+                    self.mav.send_vision([dz, dy, -dx],
                                      angles,
                                      dt=data["time"]*1e3,
                                      confidence=confidence)
+                elif self.current_rotation == DVL_DEG_90:
+                    self.mav.send_vision([dz, dx, dy],
+                                     angles,
+                                     dt=data["time"]*1e3,
+                                     confidence=confidence)
+                elif self.current_rotation == DVL_DEG_180:
+                    self.mav.send_vision([dz, -dy, dx],
+                                     angles,
+                                     dt=data["time"]*1e3,
+                                     confidence=confidence)
+                elif self.current_rotation == DVL_DEG_270:
+                    self.mav.send_vision([dz, -dx, -dy],
+                                     angles,
+                                     dt=data["time"]*1e3,
+                                     confidence=confidence)
+
             if self.rangefinder:
                 self.mav.send_rangefinder(alt)
             time.sleep(0.003)
