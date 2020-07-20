@@ -40,6 +40,16 @@ class API:
         2 = Forward
         """
         return self.dvl.set_orientation(orientation)
+    
+    def set_rotation(self, rotation: int) -> bool:
+        """
+        Sets the DVL mounting rotation, in degrees clockwise:
+        1 = 0 degrees (standard rotation, green LED forward)
+        2 = 90 degrees
+        3 = 180 degrees
+        4 = 270 degrees
+        """
+        return self.dvl.set_rotation(rotation)
 
     def set_hostname(self, hostname: str) -> bool:
         """
@@ -81,6 +91,10 @@ if __name__ == '__main__':
     @app.route('/orientation/<int:orientation>')
     def set_orientation(orientation: int):
         return str(api.set_orientation(orientation))
+    
+    @app.route('/rotation/<int:rotation>')
+    def set_rotation(rotation: int):
+        return str(api.set_rotation(rotation))
 
     @app.route('/hostname/<hostname>')
     def set_hostname(hostname):
