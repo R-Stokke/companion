@@ -170,7 +170,7 @@ class DvlDriver (threading.Thread):
         """
         Sets the DVL rotation, 0, 90, 180 or 270 degrees, measured clockwise.
         """
-        if orientation in [DVL_0_DEG, DVL_90_DEG, DVL_180_DEG, DVL_270_DEG]:
+        if rotation in [DVL_0_DEG, DVL_90_DEG, DVL_180_DEG, DVL_270_DEG]:
             self.current_rotation = rotation
             self.save_settings()
             return True
